@@ -1,0 +1,173 @@
+version: "2.3"
+services:
+
+###################################################
+
+   portal:
+      hostname: portal
+      image: midih/dihportal:latest
+      networks:
+         hostnet:
+            aliases:
+               - portal
+         dbnet:
+            aliases:
+               - portal
+         kbnet:
+            aliases:
+               - portal
+         officenet:
+            aliases:
+               - portal
+      ports:
+         - "18080:8080"
+         - "18009:8009"
+      environment:
+         - PORTALNAME=demo-diware.eng.it
+         - IDMNAME=demo-diware-idm.eng.it
+         - MKPLNAME=demo-diware-mkpl.eng.it
+      depends_on:
+         - mariadb
+         - kbnode
+         - idm
+      volumes:
+         - portal_data:/opt/liferay-portal-6.2.0-ce-ga1/data
+
+   mariadb:
+      hostname: mariadb
+      image: midih/dihmariadb:latest
+      networks:
+         dbnet:
+            aliases:
+               - mariadb
+      volumes:
+         - mariadb_data:/var/lib/mysql
+      environment:
+         - MYSQL_ROOT_PASSWORD=r00t
+
+   kbnode:
+      hostname: kbnode
+      image: midih/dihkbnode:latest
+      networks:
+         kbnet:
+            aliases:
+               - kbnode
+      environment:
+         - PORTALNAME=demo-diware.eng.it
+      volumes:
+         - elasticsearch_data:/opt/elasticsearch/data
+         - virtuoso_data:/opt/virtuoso/var/lib/virtuoso/db
+
+#################################################
+
+   office:
+      hostname: office
+      image: midih/dihoffice:latest
+      networks:
+         officenet:
+            aliases:
+               - office
+
+#################################################
+
+   idm:
+      hostname: idm
+      image: midih/dihidm:latest
+      networks:
+         hostnet:
+            aliases:
+               - idm
+      volumes:
+         - idm_keystone:/keystone
+         - idm_horizon:/horizon
+         - idm_mysql_data:/data/mysql
+      ports:
+         - "18000:8000"
+      environment:
+         - PORTALNAME=demo-diware.eng.it
+
+#################################################
+
+   mkplmysql:
+      hostname: mkplmysql
+      image: mysql:5.7.21
+      networks:
+         mkplnet:
+            aliases:
+               - mysql
+      volumes:
+         - mkpl_mysql_data:/var/lib/mysql
+      environment:
+         - MYSQL_ROOT_PASSWORD=r00t
+
+   mkplmongo:
+      hostname: mkplmongo
+      image: mongo:3.2
+      networks:
+         mkplnet:
+            aliases:
+               - mongo
+      volumes:
+         - mkpl_mongo_data:/data/db
+         - mkpl_mongo_conf:/data/configdb
+
+   mkpl:
+      hostname: mkpl
+      image: midih/dihmkpl
+      networks:
+         hostnet:
+            aliases:
+               - mkpl
+         mkplnet:
+            aliases:
+               - mkpl
+      ports:
+         - "18001:8000"
+      depends_on:
+        - mkplmysql
+        - mkplmongo
+        - idm
+      environment:
+        - MKPLNAME=demo-diware-mkpl.eng.it
+        - PORTALNAME=demo-diware.eng.it
+        - IDMNAME=demo-diware-idm.eng.it
+        - MYSQL_HOST=mysql
+        - MYSQL_ROOT_PASSWORD=r00t
+        - ADMIN_EMAIL=demo.diware@gmail.com
+        - EMAIL_USER=demodiware.admin@eng.it
+        - EMAIL_PASSWD=
+        - EMAIL_SERVER=161.27.170.30
+        - EMAIL_SERVER_PORT=25
+      volumes:
+        - ./MKPLDATA/apis/war:/apis/wars-ext
+        - ./MKPLDATA/conf/rss:/etc/default/rss
+        - ./MKPLDATA/conf/charging:/business-ecosystem-charging-backend/src/user_settings
+        - ./MKPLDATA/conf/proxy:/business-ecosystem-logic-proxy/etc
+        - ./MKPLDATA/charging-bills:/business-ecosystem-charging-backend/src/media/bills
+        - ./MKPLDATA/charging-assets:/business-ecosystem-charging-backend/src/media/assets
+        - ./MKPLDATA/charging-plugins:/business-ecosystem-charging-backend/src/plugins
+        - ./MKPLDATA/charging-inst-plugins:/business-ecosystem-charging-backend/src/wstore/asset_manager/resource_plugins/plugins
+        - ./MKPLDATA/proxy-indexes:/business-ecosystem-logic-proxy/indexes
+        - ./MKPLDATA/proxy-themes:/business-ecosystem-logic-proxy/themes
+        - ./MKPLDATA/proxy-static:/business-ecosystem-logic-proxy/static
+
+#################################################
+
+volumes:
+   mariadb_data:
+   portal_data:
+   virtuoso_data:
+   elasticsearch_data:
+   idm_keystone:
+   idm_horizon:
+   idm_mysql_data:
+   mkpl_mysql_data:
+   mkpl_mongo_data:
+   mkpl_mongo_conf:
+
+networks:
+   hostnet:
+   dbnet:
+   kbnet:
+   mkplnet:
+   officenet:
