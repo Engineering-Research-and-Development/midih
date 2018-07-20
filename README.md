@@ -8,6 +8,7 @@ In order to use it, it is necessary to set and export the following environment 
 $DIH_PORTAL_NAME = <portal_FQDN> | <portal_ipaddr:portal_port> | <host_ip:portal_port>
 $PORTAL_WEB_PORT = <docker_published_portal_web_port>
 $PORTAL_AJP_PORT = <docker_published_portal_ajp_port>
+$GOOGLE_ANALYTICS_KEY = <google key for portal analytics>
 
 $DIH_IDM_NAME = <idm_FQDN> | <idm_ipaddr:idm_port> | <host_ip:idm_port>
 $IDM_WEB_PORT = <docker_published_idm_web_port>
