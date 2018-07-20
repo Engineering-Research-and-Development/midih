@@ -20,12 +20,13 @@ services:
             aliases:
                - portal
       ports:
-         - "18080:8080"
-         - "18009:8009"
+         - $PORTAL_WEB_PORT:8080
+         - $PORTAL_AJP_PORT:8009
       environment:
-         - PORTALNAME=demo-diware.eng.it
-         - IDMNAME=demo-diware-idm.eng.it
-         - MKPLNAME=demo-diware-mkpl.eng.it
+         - PORTALNAME=$DIH_PORTAL_NAME
+         - MKPLNAME=$DIH_MKPL_NAME
+         - IDMNAME=$DIH_IDM_NAME
+         - GOOGLEANALYTICSKEY=$GOOGLE_ANALYTICS_KEY
       depends_on:
          - mariadb
          - kbnode
@@ -53,7 +54,7 @@ services:
             aliases:
                - kbnode
       environment:
-         - PORTALNAME=demo-diware.eng.it
+         - PORTALNAME=$DIH_PORTAL_NAME
       volumes:
          - elasticsearch_data:/opt/elasticsearch/data
          - virtuoso_data:/opt/virtuoso/var/lib/virtuoso/db
@@ -82,9 +83,9 @@ services:
          - idm_horizon:/horizon
          - idm_mysql_data:/data/mysql
       ports:
-         - "18000:8000"
+         - $IDM_WEB_PORT:8000
       environment:
-         - PORTALNAME=demo-diware.eng.it
+         - PORTALNAME=$DIH_PORTAL_NAME
 
 #################################################
 
@@ -110,7 +111,6 @@ services:
       volumes:
          - mkpl_mongo_data:/data/db
          - mkpl_mongo_conf:/data/configdb
-
    mkpl:
       hostname: mkpl
       image: midih/dihmkpl
@@ -122,34 +122,34 @@ services:
             aliases:
                - mkpl
       ports:
-         - "18001:8000"
+         - $MKPL_WEB_PORT:8000
       depends_on:
-        - mkplmysql
-        - mkplmongo
-        - idm
+         - mkplmysql
+         - mkplmongo
+         - idm
       environment:
-        - MKPLNAME=demo-diware-mkpl.eng.it
-        - PORTALNAME=demo-diware.eng.it
-        - IDMNAME=demo-diware-idm.eng.it
-        - MYSQL_HOST=mysql
-        - MYSQL_ROOT_PASSWORD=r00t
-        - ADMIN_EMAIL=demo.diware@gmail.com
-        - EMAIL_USER=demodiware.admin@eng.it
-        - EMAIL_PASSWD=
-        - EMAIL_SERVER=161.27.170.30
-        - EMAIL_SERVER_PORT=25
+         - MKPLNAME=$DIH_MKPL_NAME
+         - PORTALNAME=$DIH_PORTAL_NAME
+         - IDMNAME=$DIH_IDM_NAME
+         - ADMIN_EMAIL=$MKPL_ADMIN_EMAIL
+         - EMAIL_USER=$MKPL_EMAIL_USER
+         - EMAIL_PASSWD=$MKPL_EMAIL_PASSWD
+         - EMAIL_SERVER=$MKPL_EMAIL_SERVER_ADDR
+         - EMAIL_SERVER_PORT=$MKPL_EMAIL_SERVER_PORT
+         - MYSQL_HOST=mysql
+         - MYSQL_ROOT_PASSWORD=r00t
       volumes:
-        - ./MKPLDATA/apis/war:/apis/wars-ext
-        - ./MKPLDATA/conf/rss:/etc/default/rss
-        - ./MKPLDATA/conf/charging:/business-ecosystem-charging-backend/src/user_settings
-        - ./MKPLDATA/conf/proxy:/business-ecosystem-logic-proxy/etc
-        - ./MKPLDATA/charging-bills:/business-ecosystem-charging-backend/src/media/bills
-        - ./MKPLDATA/charging-assets:/business-ecosystem-charging-backend/src/media/assets
-        - ./MKPLDATA/charging-plugins:/business-ecosystem-charging-backend/src/plugins
-        - ./MKPLDATA/charging-inst-plugins:/business-ecosystem-charging-backend/src/wstore/asset_manager/resource_plugins/plugins
-        - ./MKPLDATA/proxy-indexes:/business-ecosystem-logic-proxy/indexes
-        - ./MKPLDATA/proxy-themes:/business-ecosystem-logic-proxy/themes
-        - ./MKPLDATA/proxy-static:/business-ecosystem-logic-proxy/static
+         - ./MKPLDATA/apis/war:/apis/wars-ext
+         - ./MKPLDATA/conf/rss:/etc/default/rss
+         - ./MKPLDATA/conf/charging:/business-ecosystem-charging-backend/src/user_settings
+         - ./MKPLDATA/conf/proxy:/business-ecosystem-logic-proxy/etc
+         - ./MKPLDATA/charging-bills:/business-ecosystem-charging-backend/src/media/bills
+         - ./MKPLDATA/charging-assets:/business-ecosystem-charging-backend/src/media/assets
+         - ./MKPLDATA/charging-plugins:/business-ecosystem-charging-backend/src/plugins
+         - ./MKPLDATA/charging-inst-plugins:/business-ecosystem-charging-backend/src/wstore/asset_manager/resource_plugins/plugins
+         - ./MKPLDATA/proxy-indexes:/business-ecosystem-logic-proxy/indexes
+         - ./MKPLDATA/proxy-themes:/business-ecosystem-logic-proxy/themes
+         - ./MKPLDATA/proxy-static:/business-ecosystem-logic-proxy/static
 
 #################################################
 
