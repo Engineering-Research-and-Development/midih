@@ -111,6 +111,7 @@ services:
       volumes:
          - mkpl_mongo_data:/data/db
          - mkpl_mongo_conf:/data/configdb
+         
    mkpl:
       hostname: mkpl
       image: midih/dihmkpl
@@ -153,6 +154,42 @@ services:
 
 #################################################
 
+   camunda:
+      hostname: camunda
+      image: camunda/camunda-bpm-platform:latest
+      networks:
+         hostnet:
+            aliases:
+               - camunda
+         camundanet:
+            aliases:
+               - camunda
+      environment:
+         - DB_DRIVER=com.mysql.jdbc.Driver
+         - DB_URL=jdbc:mysql://camundamysql:3306/process-engine?autoReconnect=true
+         - DB_USERNAME=camunda
+         - DB_PASSWORD=camunda
+         - WAIT_FOR=camundamysql:3306
+      depends_on:
+         - camundamysql
+
+   camundamysql:
+      hostname: camundamysql
+      image: mysql:5.7.21
+      networks:
+         camundanet:
+            aliases:
+               - camundamysql
+      volumes:
+         - camunda_mysql_data:/var/lib/mysql
+      environment:
+         - MYSQL_ROOT_PASSWORD=camunda
+         - MYSQL_USER=camunda
+         - MYSQL_PASSWORD=camunda
+         - MYSQL_DATABASE=process-engine
+
+#################################################
+
 volumes:
    mariadb_data:
    portal_data:
@@ -164,6 +201,7 @@ volumes:
    mkpl_mysql_data:
    mkpl_mongo_data:
    mkpl_mongo_conf:
+   camunda_mysql_data:
 
 networks:
    hostnet:
@@ -171,3 +209,4 @@ networks:
    kbnet:
    mkplnet:
    officenet:
+   camundanet:
