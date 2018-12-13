@@ -170,6 +170,7 @@ services:
          - DB_USERNAME=camunda
          - DB_PASSWORD=camunda
          - WAIT_FOR=camundamysql:3306
+         - WAIT_FOR_TIMEOUT=200
       depends_on:
          - camundamysql
 
